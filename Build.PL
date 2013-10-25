@@ -49,7 +49,7 @@ my $prefix = "%s";
 
 if($dest_libdir) {
     my $s = $dest_libdir;
-    if( $s =~ s:(.*)\/[^\/]+:$1: ) {  # lop off the lib part
+    if( $s =~ s:(.*)\/[^\/]+:$1: ) {  # lop off the final directory (lib part)
 	$prefix = $s;
     }
 } else {
@@ -60,13 +60,46 @@ if($dest_libdir) {
     }
 }
 
-print "prefix=$prefix\n";
-print "libdir=$dest_libdir\n";
+my $alien_install_commands = [];
+my $alien_build_commands = [];
+
+unless(`pkg-config --libs fftw3`) {
+    print <<"FOO";
+Alien::FFTW3: fftw3 library not found.  On "Build", I will fetch and build
+the fftw3 library.  on "Build install" I will install it into the '$prefix' tree 
+The libraries will get placed in '$dest_libdir'. 
+
+FOO
+
+# build commands use POSIX nomenclature.  That's ok, FFTW doesn't support losedows anyway.
+$alien_build_commands = [
+    "echo preparing build directories for two fftw libraries (double and float)...",
+    "rm -rf .fftw-double-build .fftw-float-build",
+    "mkdir .fftw-double-build",
+    "cp -r -p * .fftw-double-build",
+    "mkdir .fftw-float-build",
+    "cp -r -p * .fftw-float-build",
+    "echo building double library...",
+    "echo 'cd .fftw-double-build\; ./configure CFLAGS=-fPIC --prefix=$prefix ".($dest_libdir?"--libdir=$dest_libdir":"")."\; make'|sh",
+    "echo building float library...",
+    "echo 'cd .fftw-float-build\; ./configure CFLAGS=-fPIC --prefix=$prefix ".($dest_libdir?"--libdir=$dest_libdir":"")." --enable-single\; make'|sh",
+];
+
+$alien_install_commands =  [
+    "echo 'cd .fftw-double-build; make install' | sh",
+    "echo 'cd .fftw-float-build; make install' | sh",
+    $bonus_install_command || "echo 1"
+]
+
+}
+    
+print "alien_build_commands is:\n",map { "    $_\n" } @$alien_build_commands;
 
 ##############################
 # Finally -- do the building.
 
 use Alien::Base::ModuleBuild;
+
 my $builder = Alien::Base::ModuleBuild->new (
     module_name => 'Alien::FFTW3',
     license => 'perl',
@@ -87,23 +120,13 @@ my $builder = Alien::Base::ModuleBuild->new (
 	pattern => qr/fftw-(3\.[\d\.]*).tar.gz/
     },
 
-    # Build the double-precision library on build
-    alien_build_commands => [
-    ],
+    # Build if necessary...
+    alien_build_commands => $alien_build_commands , 
 
     install_type => 'system',
 
-    # Install the double-precision library on install, and then
-    # build and install the single-precision library as well.
-    alien_install_commands => [
-	"%pconfigure --prefix=$prefix ".($dest_libdir?"--libdir=$dest_libdir":""),
-	'make',
-	'make install',
-	"%pconfigure --prefix=$prefix --enable-single ".($dest_libdir?"--libdir=$dest_libdir":""),
-	'make',
-	'make install',
-	$bonus_install_command || "echo 1"
-    ],
+    # Install if necessary...
+    alien_install_commands =>  $alien_install_commands ,
 	
     # alien_build_commands not necessary -- use default configure
     # alien_install_commands not necessary -- use default install
@@ -116,6 +139,7 @@ my $builder = Alien::Base::ModuleBuild->new (
 	}
     }
     );
+
 
 $builder->create_build_script;
 

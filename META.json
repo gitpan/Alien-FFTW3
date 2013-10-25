@@ -3,7 +3,7 @@
    "author" : [
       "Craig DeForest <deforest@boulder.swri.edu>"
    ],
-   "dynamic_config" : 1,
+   "dynamic_config" : 0,
    "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120630",
    "license" : [
       "perl_5"
@@ -44,6 +44,7 @@
          "http://dev.perl.org/licenses/"
       ],
       "repository" : {
+         "type" : "git",
          "url" : "git://github.com/ddrzowie/alien-fftw3.git"
       }
    },
