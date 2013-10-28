@@ -1,10 +1,10 @@
 {
-   "abstract" : "Alien wrapper for FFTW3",
+   "abstract" : "Simple installation and compatibility for FFTW3",
    "author" : [
       "Craig DeForest <deforest@boulder.swri.edu>"
    ],
-   "dynamic_config" : 0,
-   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120630",
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.3901, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -14,6 +14,11 @@
    },
    "name" : "Alien-FFTW3",
    "prereqs" : {
+      "build" : {
+         "requires" : {
+            "ExtUtils::CBuilder" : "0"
+         }
+      },
       "configure" : {
          "requires" : {
             "Alien::Base" : "0.002",
@@ -31,7 +36,7 @@
    "provides" : {
       "Alien::FFTW3" : {
          "file" : "lib/Alien/FFTW3.pm",
-         "version" : "0.01"
+         "version" : "0.03"
       }
    },
    "release_status" : "stable",
@@ -44,9 +49,8 @@
          "http://dev.perl.org/licenses/"
       ],
       "repository" : {
-         "type" : "git",
          "url" : "git://github.com/ddrzowie/alien-fftw3.git"
       }
    },
-   "version" : "0.01"
+   "version" : "0.03"
 }

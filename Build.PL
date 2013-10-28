@@ -73,7 +73,7 @@ FOO
 
 # build commands use POSIX nomenclature.  That's ok, FFTW doesn't support losedows anyway.
 $alien_build_commands = [
-    "echo preparing build directories for two fftw libraries (double and float)...",
+    "echo preparing build directories for two fftw libraries: double and float...",
     "rm -rf .fftw-double-build .fftw-float-build",
     "mkdir .fftw-double-build",
     "cp -r -p * .fftw-double-build",
@@ -102,6 +102,11 @@ use Alien::Base::ModuleBuild;
 
 my $builder = Alien::Base::ModuleBuild->new (
     module_name => 'Alien::FFTW3',
+    needs_compiler => 1,
+    create_packlist => 1,
+    dist_abstract => "Simple installation and compatibility for FFTW3",
+    dist_author => 'Craig DeForest <deforest@boulder.swri.edu>',
+    dynamic_config => 1,
     license => 'perl',
     configure_requires => {
 	'Alien::Base' => '0.002',
@@ -111,7 +116,6 @@ my $builder = Alien::Base::ModuleBuild->new (
 	'perl' => '5.8.1',
 	'Alien::Base' => 0,
     },
-    dist_author => 'Craig DeForest <deforest@boulder.swri.edu>',
     alien_name => 'fftw3',
     alien_repository => {
 	protocol => 'ftp',
@@ -123,7 +127,7 @@ my $builder = Alien::Base::ModuleBuild->new (
     # Build if necessary...
     alien_build_commands => $alien_build_commands , 
 
-    install_type => 'system',
+    install_type => 'vendor',
 
     # Install if necessary...
     alien_install_commands =>  $alien_install_commands ,
@@ -144,24 +148,3 @@ my $builder = Alien::Base::ModuleBuild->new (
 $builder->create_build_script;
 
 
-__END__
-
-
-use Module::Build;
-
-
-my $builder = new Module::Build( 
-    module_name => 'Alien::FFTW3';
-    needs_compiler => 1,
-    create_packlist => 1,
-    dist_abstract => 'Simple installation and compatibility for FFTW3',
-    dist_author => 'Craig DeForest <deforest@boulder.swri.edu>',
-    dynamic_config=>1,
-    installdirs => 'vendor',
-    license => 'artistic_2',
-    meta_merge => {
-	    homepage => 'https://github.com/drzowie/alien-fftw3',
-	    bugtracker => 'https://github.com/drzowie/alien-fftw3/issues',
-	    repository => 'git://github.com/ddrzowie/alien-fftw3.git'
-    }
-    );
